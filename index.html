@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080b16">
-  <meta name="description" content="NEON CUT — a browser rhythm game. Match the hand, follow the arrow, and slice on the beat.">
+  <meta name="description" content="NEON CUT — a browser rhythm game. Follow the arrow and slash on the beat.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23d9ff6a' d='M20 3h24L31 27h17L19 61l7-25H9z'/%3E%3C/svg%3E">
   <title>NEON CUT — Rhythm Arena</title>
   <style>
@@ -27,7 +27,7 @@
     body { min-width: 320px; background: #080b16; user-select: none; -webkit-user-select: none; }
     button { color: inherit; font: inherit; }
     .arena { position: relative; width: 100%; height: 100%; min-height: 520px; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, #19233a 0%, #0b1020 43%, #070a13 100%); isolation: isolate; }
-    canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+    canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: none; }
     .vignette { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(5,7,16,.68), transparent 24%, transparent 62%, rgba(5,7,16,.54)), radial-gradient(ellipse at center, transparent 40%, rgba(4,6,13,.48) 100%); }
     .hud { position: absolute; z-index: 2; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: max(22px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(28px, env(safe-area-inset-left)); }
     .topbar { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
@@ -58,12 +58,8 @@
     .progress-fill { width: 0; height: 100%; background: linear-gradient(90deg,var(--pink),#bd83ff,var(--cyan)); box-shadow: 0 0 10px rgba(94,207,255,.65); transition: width .12s linear; }
     .progress-dot { position: absolute; width: 8px; height: 8px; border: 1px solid var(--lime); background: #101629; border-radius: 50%; right: -1px; top: -3px; box-shadow: 0 0 10px rgba(217,255,106,.55); }
     .control-strip { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 19px; color: #818aa1; font-size: 10px; letter-spacing: .03em; }
-    .hand-keys { display: flex; align-items: center; gap: 5px; }
-    .hand-dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 3px; box-shadow: 0 0 9px currentColor; }
-    .hand-dot.left { color: var(--pink); background: var(--pink); }
-    .hand-dot.right { color: var(--cyan); background: var(--cyan); }
+    .direction-keys { display: flex; align-items: center; gap: 5px; }
     kbd { min-width: 22px; height: 21px; display: inline-grid; place-items: center; padding: 0 5px; border: 1px solid rgba(177,191,233,.18); border-bottom-color: rgba(177,191,233,.34); border-radius: 5px; background: rgba(16,21,39,.72); color: #c1cbe0; font: 10px var(--mono); }
-    .control-divider { height: 15px; width: 1px; background: rgba(160,177,220,.18); }
     .swipe-hint { color: #6f7890; }
     .beat-pulse { position: absolute; z-index: 1; left: 50%; top: 31%; width: 8px; height: 8px; border: 1px solid rgba(217,255,106,.75); border-radius: 50%; transform: translate(-50%,-50%) scale(.5); opacity: 0; pointer-events: none; }
     .beat-pulse.pop { animation: pop .45s ease-out; }
@@ -110,7 +106,6 @@
       .scoreboard { top: 76px; gap: 20px; }
       .stat-label { font-size: 8px; }
       .control-strip { gap: 9px; flex-wrap: wrap; margin-top: 14px; font-size: 9px; }
-      .swipe-hint { display: none; }
       .icon-btn { width: 34px; height: 34px; }
       .bottom-ui { margin-bottom: 0; }
     }
@@ -157,26 +152,24 @@
         <div class="progress-row"><span id="run-state">READY WHEN YOU ARE</span><span id="time-left">01:15</span></div>
         <div class="progress-track"><div class="progress-fill" id="progress-fill"></div><div class="progress-dot"></div></div>
         <div class="control-strip">
-          <div class="hand-keys"><i class="hand-dot left"></i><kbd>A</kbd><kbd>W</kbd><kbd>D</kbd><kbd>S</kbd></div>
-          <div class="control-divider"></div>
-          <div class="hand-keys"><i class="hand-dot right"></i><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></div>
-          <span class="swipe-hint">SWIPE EACH SIDE</span>
+          <div class="direction-keys"><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></div>
+          <span class="swipe-hint">DRAG / SWIPE TO CUT</span>
         </div>
       </footer>
     </div>
 
     <section class="overlay" id="start-overlay">
       <div class="card">
-        <div class="eyebrow">ONE TRACK · TWO SABERS</div>
+        <div class="eyebrow">ONE TRACK · ONE SABER</div>
         <h1>CUT THE<br><em>BEAT.</em></h1>
-        <p class="lede">Follow the arrow. Match the hand. Land each cut right on the pulse and keep your streak alive.</p>
+        <p class="lede">Follow the arrow and slash that way on the beat. Keep your streak alive.</p>
         <div class="track-card">
           <div class="track-art" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
           <div><div class="track-title">NEON PULSE</div><div class="track-meta">SYNTHWAVE · 90 BPM · 75 SEC</div></div>
           <div class="best-line">PERSONAL BEST<strong id="best-score">—</strong></div>
         </div>
         <button class="primary-btn" id="start-btn">ENTER THE ARENA&nbsp; ↗</button>
-        <p class="tip">A W D S = LEFT SABER &nbsp;·&nbsp; ARROWS = RIGHT SABER<br>Swipe either half of the screen to cut.</p>
+        <p class="tip">ARROWS = CUT DIRECTION · COLOR IS JUST STYLE<br>Hold and drag the mouse to swing.</p>
       </div>
     </section>
     <section class="overlay hidden" id="pause-overlay">
@@ -211,18 +204,14 @@
       const BEAT = 60 / BPM;
       const APPROACH = 2.05;
       const HIT_WINDOW = 0.205;
-      const HANDS = { left: "#ff477e", right: "#39e6ff" };
+      const NOTE_COLORS = ["#ff477e", "#39e6ff"];
       const DIRECTIONS = ["left", "up", "right", "down"];
-      const ARROWS = { left: "←", up: "↑", right: "→", down: "↓" };
-      const KEYMAP = {
-        KeyA: ["left", "left"], KeyW: ["left", "up"], KeyD: ["left", "right"], KeyS: ["left", "down"],
-        ArrowLeft: ["right", "left"], ArrowUp: ["right", "up"], ArrowRight: ["right", "right"], ArrowDown: ["right", "down"]
-      };
+      const KEYMAP = { ArrowLeft: "left", ArrowUp: "up", ArrowRight: "right", ArrowDown: "down" };
       const state = {
         mode: "ready", startAt: 0, pausedAt: 0, elapsed: 0, score: 0, combo: 0, bestCombo: 0,
         hits: 0, misses: 0, mistakes: 0, chart: [], trails: [], particles: [], beat: -1,
         muted: false, audio: null, master: null, shake: 0, judgeUntil: 0, lastNow: 0, pointer: null,
-        stars: [], hitGlow: { left: 0, right: 0 }, runId: 0
+        stars: [], saberGlow: 0, runId: 0
       };
       const palette = ["#39e6ff", "#63a6ff", "#b275ff", "#ff6c9c", "#ffbb62", "#b9ff78"];
 
@@ -244,16 +233,13 @@
         const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
         const notes = [];
         const count = Math.floor(DURATION / BEAT) - 1;
-        let lastHand = "right";
         // Leave a few beats before the first target so players can see the flow coming.
         for (let beat = 5; beat < count; beat++) {
-          let hand = random() < .5 ? "left" : "right";
-          if (hand === lastHand && random() < .72) hand = hand === "left" ? "right" : "left";
-          lastHand = hand;
-          notes.push({ id: notes.length, at: beat * BEAT, hand, dir: DIRECTIONS[Math.floor(random() * 4)], lane: Math.floor(random() * 3) - 1, hit: false, missed: false });
+          const color = NOTE_COLORS[Math.floor(random() * NOTE_COLORS.length)];
+          notes.push({ id: notes.length, at: beat * BEAT, color, dir: DIRECTIONS[Math.floor(random() * 4)], lane: Math.floor(random() * 3) - 1, hit: false, missed: false });
           if (beat % 12 === 7 && random() > .36) {
-            const other = hand === "left" ? "right" : "left";
-            notes.push({ id: notes.length, at: beat * BEAT, hand: other, dir: DIRECTIONS[Math.floor(random() * 4)], lane: Math.floor(random() * 3) - 1, hit: false, missed: false });
+            const otherColor = color === NOTE_COLORS[0] ? NOTE_COLORS[1] : NOTE_COLORS[0];
+            notes.push({ id: notes.length, at: beat * BEAT, color: otherColor, dir: DIRECTIONS[Math.floor(random() * 4)], lane: Math.floor(random() * 3) - 1, hit: false, missed: false });
           }
         }
         return notes;
@@ -315,9 +301,9 @@
         else tone(index % 2 ? 760 : 540, .045, "sine", .027, 340);
         if (index % 8 === 4) tone(170, .16, "triangle", .09, 115);
       }
-      function hitSound(hand, perfect) {
-        tone(hand === "left" ? 520 : 780, perfect ? .22 : .14, "triangle", perfect ? .2 : .12, perfect ? 1040 : 420, hand === "left" ? -.35 : .35);
-        if (perfect) tone(hand === "left" ? 880 : 1120, .12, "sine", .08, 1480, hand === "left" ? -.35 : .35);
+      function hitSound(perfect) {
+        tone(perfect ? 720 : 560, perfect ? .22 : .14, "triangle", perfect ? .2 : .12, perfect ? 1200 : 420);
+        if (perfect) tone(1040, .12, "sine", .08, 1560);
       }
       function missSound() { tone(105, .17, "sawtooth", .08, 48); }
 
@@ -329,7 +315,7 @@
         state.startAt = performance.now() / 1000;
         state.elapsed = 0; state.score = 0; state.combo = 0; state.bestCombo = 0;
         state.hits = 0; state.misses = 0; state.mistakes = 0; state.beat = -1;
-        state.trails = []; state.particles = []; state.shake = 0;
+        state.trails = []; state.particles = []; state.shake = 0; state.saberGlow = 0;
         $("start-overlay").classList.add("hidden");
         $("pause-overlay").classList.add("hidden");
         $("result-overlay").classList.add("hidden");
@@ -399,14 +385,11 @@
         const size = (24 + Math.min(w, h) * .024) * perspective;
         return { x, y, size, depth };
       }
-      function slash(hand, dir) {
+      function slash(dir, swipe = null) {
         if (state.mode !== "running") return;
         const now = state.elapsed;
-        const candidates = state.chart.filter(n => !n.hit && !n.missed && n.hand === hand && n.dir === dir && Math.abs(n.at - now) <= HIT_WINDOW)
+        const candidates = state.chart.filter(n => !n.hit && !n.missed && n.dir === dir && Math.abs(n.at - now) <= HIT_WINDOW)
           .sort((a, b) => Math.abs(a.at - now) - Math.abs(b.at - now));
-        const color = HANDS[hand];
-        const hx = window.innerWidth * (hand === "left" ? .34 : .66);
-        const hy = window.innerHeight * .79;
         if (candidates.length) {
           const note = candidates[0];
           note.hit = true;
@@ -416,11 +399,11 @@
           state.combo++;
           state.bestCombo = Math.max(state.bestCombo, state.combo);
           state.score += Math.round((perfect ? 115 : 70 + Math.max(0, 1 - delta / HIT_WINDOW) * 30) * (1 + Math.min(state.combo, 40) * .025));
-          state.hitGlow[hand] = .22;
+          state.saberGlow = .22;
           state.shake = Math.max(state.shake, perfect ? 3.2 : 1.8);
           const pos = projectNote(note, now);
-          burst(pos.x, pos.y, color, perfect ? 19 : 12);
-          hitSound(hand, perfect);
+          burst(pos.x, pos.y, note.color, perfect ? 19 : 12);
+          hitSound(perfect);
           showJudge(perfect ? "PERFECT" : "GOOD");
         } else {
           state.mistakes++;
@@ -429,7 +412,19 @@
           missSound();
           showJudge("OFF BEAT", true);
         }
-        state.trails.push({ hand, dir, age: 0, life: .23, color, x: hx, y: hy });
+        const w = window.innerWidth, h = window.innerHeight;
+        const unitX = dir === "left" ? -1 : dir === "right" ? 1 : 0;
+        const unitY = dir === "up" ? -1 : dir === "down" ? 1 : 0;
+        const halfLength = Math.min(w, h) * .09;
+        const centerX = swipe ? (swipe.x1 + swipe.x2) / 2 : w / 2;
+        const centerY = swipe ? (swipe.y1 + swipe.y2) / 2 : h * .79;
+        state.trails.push({
+          age: 0, life: .23, color: "#d9ff6a",
+          x1: swipe?.x1 ?? centerX - unitX * halfLength,
+          y1: swipe?.y1 ?? centerY - unitY * halfLength,
+          x2: swipe?.x2 ?? centerX + unitX * halfLength,
+          y2: swipe?.y2 ?? centerY + unitY * halfLength
+        });
         updateHud();
       }
 
@@ -506,7 +501,7 @@
             const y = horizon + Math.pow(d, 1.6) * h * .63;
             const size = 3 + d * 15;
             ctx.save(); ctx.translate(x + (side ? -1 : 1) * d * w * .27, y); ctx.rotate(now * .3 + i);
-            ctx.strokeStyle = side ? HANDS.right : HANDS.left; ctx.globalAlpha = .08 + d * .18;
+            ctx.strokeStyle = side ? NOTE_COLORS[1] : NOTE_COLORS[0]; ctx.globalAlpha = .08 + d * .18;
             ctx.strokeRect(-size, -size, size * 2, size * 2); ctx.restore();
           }
         }
@@ -515,48 +510,66 @@
         ctx.fillStyle = horizonGlow; ctx.fillRect(0, horizon - 1, w, 45);
       }
 
-      function drawCube(note, now) {
+      function drawArrowPrism(note, now) {
         const p = projectNote(note, now);
         const size = p.size;
         const x = p.x, y = p.y;
-        const col = HANDS[note.hand];
-        const face = ctx.createLinearGradient(x-size/2, y-size/2, x+size/2, y+size/2);
-        face.addColorStop(0, note.hand === "left" ? "#ff759a" : "#90f4ff");
-        face.addColorStop(1, note.hand === "left" ? "#c91f59" : "#1385ba");
-        const z = size * .24;
+        const col = note.color;
+        const angle = { up: 0, right: Math.PI / 2, down: Math.PI, left: -Math.PI / 2 }[note.dir];
+        const shape = [[-.2,.46],[.2,.46],[.2,-.02],[.45,-.02],[0,-.47],[-.45,-.02],[-.2,-.02]];
+        const points = shape.map(([px, py]) => ({
+          x: x + (px * Math.cos(angle) - py * Math.sin(angle)) * size,
+          y: y + (px * Math.sin(angle) + py * Math.cos(angle)) * size
+        }));
+        const depthX = size * .2, depthY = -size * .2;
+        const path = (offsetX = 0, offsetY = 0, scale = 1) => {
+          ctx.beginPath();
+          points.forEach((point, index) => {
+            const px = x + (point.x - x) * scale + offsetX;
+            const py = y + (point.y - y) * scale + offsetY;
+            if (index === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          });
+          ctx.closePath();
+        };
         ctx.save();
         ctx.globalAlpha = note.hit || note.missed ? .12 : Math.min(1, .38 + p.depth * .9);
-        ctx.shadowColor = col; ctx.shadowBlur = 8 + p.depth * 20;
-        ctx.fillStyle = face; ctx.strokeStyle = col; ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.moveTo(x-size/2,y-size/2); ctx.lineTo(x-size/2+z,y-size/2-z); ctx.lineTo(x+size/2+z,y-size/2-z); ctx.lineTo(x+size/2,y-size/2); ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x+size/2,y-size/2); ctx.lineTo(x+size/2+z,y-size/2-z); ctx.lineTo(x+size/2+z,y+size/2-z); ctx.lineTo(x+size/2,y+size/2); ctx.closePath(); ctx.fillStyle = note.hand === "left" ? "#a81649" : "#0c719e"; ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.rect(x-size/2, y-size/2, size, size); ctx.fillStyle = face; ctx.fill(); ctx.stroke();
-        ctx.shadowBlur = 0; ctx.fillStyle = "rgba(8,12,24,.46)";
-        ctx.font = `900 ${Math.round(size*.67)}px ui-sans-serif, system-ui`;
-        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(ARROWS[note.dir], x, y + 1);
+        ctx.shadowColor = col; ctx.shadowBlur = 10 + p.depth * 24;
+        ctx.lineWidth = Math.max(1, size * .035);
+        path(depthX, depthY); ctx.fillStyle = "#091020"; ctx.strokeStyle = col; ctx.fill(); ctx.stroke();
+        for (let i = 0; i < points.length; i++) {
+          const a = points[i], b = points[(i + 1) % points.length];
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+          ctx.lineTo(b.x + depthX, b.y + depthY); ctx.lineTo(a.x + depthX, a.y + depthY); ctx.closePath();
+          ctx.fillStyle = i === 2 || i === 3 ? col : "#16243b"; ctx.fill(); ctx.strokeStyle = col; ctx.stroke();
+        }
+        const face = ctx.createLinearGradient(x - size * .5, y - size * .5, x + size * .5, y + size * .5);
+        face.addColorStop(0, "#ffffff"); face.addColorStop(.16, col); face.addColorStop(1, col);
+        path(); ctx.fillStyle = face; ctx.strokeStyle = "#eafcff"; ctx.fill(); ctx.stroke();
         ctx.restore();
         if (!note.hit && !note.missed && note.at - now < .48) {
           const pulse = (Math.sin(now * 22) + 1) * .5;
-          ctx.globalAlpha = .2 + pulse * .2; ctx.strokeStyle = col; ctx.lineWidth = 1;
-          ctx.strokeRect(x-size*.62, y-size*.62, size*1.24, size*1.24); ctx.globalAlpha = 1;
+          ctx.save(); ctx.globalAlpha = .2 + pulse * .2; ctx.strokeStyle = col; ctx.lineWidth = 1;
+          path(0, 0, 1.18); ctx.stroke(); ctx.restore();
         }
       }
 
       function drawSaber(now) {
         const w = window.innerWidth, h = window.innerHeight;
-        for (const hand of ["left", "right"]) {
-          const x = w * (hand === "left" ? .32 : .68);
-          const y = h * .81;
-          const col = HANDS[hand];
-          const glow = state.hitGlow[hand];
-          const sway = state.mode === "running" ? Math.sin(state.elapsed * 3.2 + (hand === "left" ? 0 : 1.7)) * 5 : 0;
-          ctx.save(); ctx.translate(x + sway, y); ctx.globalAlpha = .16 + glow * 2.4;
-          ctx.shadowColor = col; ctx.shadowBlur = 19 + glow * 70; ctx.fillStyle = col;
-          ctx.beginPath(); ctx.ellipse(0, 0, 24 + glow * 40, 5 + glow * 10, -.14, 0, Math.PI * 2); ctx.fill();
-          ctx.globalAlpha = .54; ctx.fillRect(-1, -42, 2, 43); ctx.globalAlpha = .92; ctx.fillRect(-2.2, -40, 4.4, 31);
-          ctx.globalAlpha = .32; ctx.beginPath(); ctx.arc(0, 0, 26, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-          state.hitGlow[hand] = Math.max(0, glow - .016);
-        }
+        const pointer = state.pointer?.active ? state.pointer : null;
+        const x = pointer ? pointer.x : w / 2;
+        const y = pointer ? pointer.y : h * .8;
+        const angle = pointer?.angle ?? -.4;
+        const glow = state.saberGlow;
+        const length = Math.min(w, h) * .14;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+        ctx.globalAlpha = pointer ? .9 : .3 + glow * 2.5;
+        ctx.shadowColor = "#d9ff6a"; ctx.shadowBlur = 16 + glow * 68;
+        ctx.strokeStyle = "#efffb4"; ctx.lineWidth = 4 + glow * 8; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -length); ctx.stroke();
+        ctx.globalAlpha = .92; ctx.fillStyle = "#d9ff6a";
+        ctx.beginPath(); ctx.arc(0, 0, 5 + glow * 11, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+        state.saberGlow = Math.max(0, glow - .016);
       }
 
       function drawTrails(dt) {
@@ -564,11 +577,8 @@
           const t = state.trails[i]; t.age += dt;
           const life = 1 - t.age / t.life;
           if (life <= 0) { state.trails.splice(i, 1); continue; }
-          let dx = t.dir === "left" ? -1 : t.dir === "right" ? 1 : 0;
-          let dy = t.dir === "up" ? -1 : t.dir === "down" ? 1 : 0;
-          const len = Math.min(window.innerWidth, window.innerHeight) * .22;
           ctx.save(); ctx.globalAlpha = life * .75; ctx.strokeStyle = t.color; ctx.lineWidth = 3 + life * 7; ctx.shadowColor = t.color; ctx.shadowBlur = 18;
-          ctx.beginPath(); ctx.moveTo(t.x - dx * len * .48, t.y - dy * len * .48); ctx.lineTo(t.x + dx * len * .52, t.y + dy * len * .52); ctx.stroke(); ctx.restore();
+          ctx.beginPath(); ctx.moveTo(t.x1, t.y1); ctx.lineTo(t.x2, t.y2); ctx.stroke(); ctx.restore();
         }
         for (let i = state.particles.length - 1; i >= 0; i--) {
           const p = state.particles[i]; p.age += dt;
@@ -592,10 +602,10 @@
           ctx.translate(ox, oy);
         }
         if (state.mode === "running" || state.mode === "paused") {
-          for (const note of state.chart) if (note.at - state.elapsed < APPROACH + .05 && note.at - state.elapsed > -.36) drawCube(note, state.elapsed);
+          for (const note of state.chart) if (note.at - state.elapsed < APPROACH + .05 && note.at - state.elapsed > -.36) drawArrowPrism(note, state.elapsed);
         } else {
-          const idle = [{ at: 1.8, hand: "left", dir: "up", lane: -1 }, { at: 1.8, hand: "right", dir: "down", lane: 1 }, { at: .8, hand: "left", dir: "right", lane: 0 }];
-          idle.forEach(n => drawCube(n, -0.2 + (Math.sin(now * .6) + 1) * .14));
+          const idle = [{ at: 1.8, color: NOTE_COLORS[0], dir: "up", lane: -1 }, { at: 1.8, color: NOTE_COLORS[1], dir: "down", lane: 1 }, { at: .8, color: NOTE_COLORS[0], dir: "right", lane: 0 }];
+          idle.forEach(n => drawArrowPrism(n, -0.2 + (Math.sin(now * .6) + 1) * .14));
         }
         drawSaber(now);
         drawTrails(dt);
@@ -607,22 +617,39 @@
         if (Math.abs(dx) > Math.abs(dy)) return dx < 0 ? "left" : "right";
         return dy < 0 ? "up" : "down";
       }
+      canvas.addEventListener("pointermove", (event) => {
+        if (state.mode !== "running") return;
+        if (state.pointer?.down && state.pointer.id === event.pointerId) {
+          const dx = event.clientX - state.pointer.x;
+          const dy = event.clientY - state.pointer.y;
+          state.pointer.angle = Math.atan2(dx, -dy);
+          state.pointer.x = event.clientX;
+          state.pointer.y = event.clientY;
+        } else if (event.pointerType === "mouse") {
+          state.pointer = { x: event.clientX, y: event.clientY, angle: -.4, id: event.pointerId, down: false, active: true, pointerType: "mouse" };
+        }
+      });
       canvas.addEventListener("pointerdown", (event) => {
         if (state.mode !== "running") return;
-        state.pointer = { x: event.clientX, y: event.clientY, hand: event.clientX < window.innerWidth / 2 ? "left" : "right", id: event.pointerId };
+        state.pointer = { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, angle: -.4, id: event.pointerId, down: true, active: true, pointerType: event.pointerType };
         canvas.setPointerCapture?.(event.pointerId);
       });
       canvas.addEventListener("pointerup", (event) => {
-        if (!state.pointer || state.pointer.id !== event.pointerId) return;
-        const dx = event.clientX - state.pointer.x, dy = event.clientY - state.pointer.y;
-        if (Math.hypot(dx, dy) > 22) slash(state.pointer.hand, directionFrom(dx, dy));
-        state.pointer = null;
+        if (!state.pointer?.down || state.pointer.id !== event.pointerId) return;
+        const swipe = { x1: state.pointer.startX, y1: state.pointer.startY, x2: event.clientX, y2: event.clientY };
+        const dx = swipe.x2 - swipe.x1, dy = swipe.y2 - swipe.y1;
+        if (Math.hypot(dx, dy) > 22) slash(directionFrom(dx, dy), swipe);
+        state.pointer = event.pointerType === "mouse"
+          ? { x: event.clientX, y: event.clientY, angle: state.pointer.angle, id: event.pointerId, down: false, active: true, pointerType: "mouse" }
+          : null;
       });
-      canvas.addEventListener("pointercancel", () => { state.pointer = null; });
+      canvas.addEventListener("pointercancel", (event) => {
+        if (state.pointer?.id === event.pointerId) state.pointer = null;
+      });
 
       window.addEventListener("keydown", (event) => {
         const mapping = KEYMAP[event.code];
-        if (mapping) { event.preventDefault(); if (!event.repeat) slash(mapping[0], mapping[1]); return; }
+        if (mapping) { event.preventDefault(); if (!event.repeat) slash(mapping); return; }
         if ((event.code === "Escape" || event.code === "KeyP") && !event.repeat) {
           event.preventDefault(); if (state.mode === "running") pauseRun(); else if (state.mode === "paused") resumeRun();
         }

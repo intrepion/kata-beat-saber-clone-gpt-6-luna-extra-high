@@ -1,6 +1,6 @@
 # NEON CUT
 
-A self-contained, browser-playable rhythm slasher. Blocks fly down a neon tunnel; hit each one on the beat with the matching hand and cut direction.
+A self-contained, browser-playable rhythm slasher. Follow each arrow and slash in that direction on the beat. Block colors are visual only.
 
 ## Play
 
@@ -14,9 +14,8 @@ Then visit [http://localhost:8000](http://localhost:8000). The soundtrack is syn
 
 ## Controls
 
-- **Left saber:** `A` (left), `W` (up), `D` (right), `S` (down)
-- **Right saber:** arrow keys
-- **Touch or mouse:** swipe from the left half for the left saber, or the right half for the right saber
+- **Arrow keys:** slash left, up, right, or down
+- **Mouse or touch:** hold and drag, or swipe, in the direction you want to slash
 - **Pause:** `P` or `Esc`; **mute:** `M`
 
-Match the block color to its hand and the arrow to your cut. Your best score is saved in this browser.
+Match the arrow direction to your cut; color does not affect the hit. Your best score is saved in this browser.
