@@ -1,6 +1,6 @@
 # NEON CUT
 
-A self-contained, browser-playable rhythm slasher. Follow each arrow and slash in that direction on the beat. Block colors are visual only.
+A self-contained, browser-playable mouse game. Move over a block, click it, or drag through a group to pop it. There is no direction, color, or timing rule.
 
 ## Play
 
@@ -14,8 +14,8 @@ Then visit [http://localhost:8000](http://localhost:8000). The soundtrack is syn
 
 ## Controls
 
-- **Arrow keys:** slash left, up, right, or down
-- **Mouse or touch:** hold and drag, or swipe, in the direction you want to slash
-- **Pause:** `P` or `Esc`; **mute:** `M`
+- **Mouse:** move over blocks to pop them, click a block, or drag through several
+- **Touch:** tap or swipe through blocks
+- **Pause and mute:** use the buttons in the top right
 
-Match the arrow direction to your cut; color does not affect the hit. Your best score is saved in this browser.
+Your score, streak, and best run are saved in this browser. The music is background atmosphere; popping blocks does not depend on its beat.

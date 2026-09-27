@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080b16">
-  <meta name="description" content="NEON CUT — a browser rhythm game. Follow the arrow and slash on the beat.">
+  <meta name="description" content="NEON CUT — move the mouse to pop blocks in a neon arcade tunnel.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23d9ff6a' d='M20 3h24L31 27h17L19 61l7-25H9z'/%3E%3C/svg%3E">
   <title>NEON CUT — Rhythm Arena</title>
   <style>
@@ -58,9 +58,8 @@
     .progress-fill { width: 0; height: 100%; background: linear-gradient(90deg,var(--pink),#bd83ff,var(--cyan)); box-shadow: 0 0 10px rgba(94,207,255,.65); transition: width .12s linear; }
     .progress-dot { position: absolute; width: 8px; height: 8px; border: 1px solid var(--lime); background: #101629; border-radius: 50%; right: -1px; top: -3px; box-shadow: 0 0 10px rgba(217,255,106,.55); }
     .control-strip { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 19px; color: #818aa1; font-size: 10px; letter-spacing: .03em; }
-    .direction-keys { display: flex; align-items: center; gap: 5px; }
-    kbd { min-width: 22px; height: 21px; display: inline-grid; place-items: center; padding: 0 5px; border: 1px solid rgba(177,191,233,.18); border-bottom-color: rgba(177,191,233,.34); border-radius: 5px; background: rgba(16,21,39,.72); color: #c1cbe0; font: 10px var(--mono); }
-    .swipe-hint { color: #6f7890; }
+    .mouse-icon { width: 13px; height: 17px; color: var(--lime); }
+    .control-hint { color: #8992aa; }
     .beat-pulse { position: absolute; z-index: 1; left: 50%; top: 31%; width: 8px; height: 8px; border: 1px solid rgba(217,255,106,.75); border-radius: 50%; transform: translate(-50%,-50%) scale(.5); opacity: 0; pointer-events: none; }
     .beat-pulse.pop { animation: pop .45s ease-out; }
     @keyframes pop { 0% { opacity: .85; transform: translate(-50%,-50%) scale(.5); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(10); } }
@@ -132,10 +131,10 @@
         </div>
         <div class="song-label">NEON PULSE <span>ORIGINAL SYNTH MIX · 90 BPM</span></div>
         <div class="top-actions">
-          <button class="icon-btn" id="mute-btn" aria-label="Mute audio" title="Mute (M)">
+          <button class="icon-btn" id="mute-btn" aria-label="Mute audio" title="Mute audio">
             <svg id="volume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
           </button>
-          <button class="icon-btn" id="pause-btn" aria-label="Pause game" title="Pause (P / Esc)">
+          <button class="icon-btn" id="pause-btn" aria-label="Pause game" title="Pause game">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 5v14M15 5v14"/></svg>
           </button>
         </div>
@@ -152,24 +151,24 @@
         <div class="progress-row"><span id="run-state">READY WHEN YOU ARE</span><span id="time-left">01:15</span></div>
         <div class="progress-track"><div class="progress-fill" id="progress-fill"></div><div class="progress-dot"></div></div>
         <div class="control-strip">
-          <div class="direction-keys"><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></div>
-          <span class="swipe-hint">DRAG / SWIPE TO CUT</span>
+          <svg class="mouse-icon" viewBox="0 0 20 26" aria-hidden="true"><rect x="3" y="1" width="14" height="24" rx="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="control-hint">MOVE MOUSE OVER BLOCKS TO CLEAR</span>
         </div>
       </footer>
     </div>
 
     <section class="overlay" id="start-overlay">
       <div class="card">
-        <div class="eyebrow">ONE TRACK · ONE SABER</div>
-        <h1>CUT THE<br><em>BEAT.</em></h1>
-        <p class="lede">Follow the arrow and slash that way on the beat. Keep your streak alive.</p>
+        <div class="eyebrow">MOUSE ONLY · NO RULES TO MEMORIZE</div>
+        <h1>POP THE<br><em>BLOCKS.</em></h1>
+        <p class="lede">Move the mouse over blocks to pop them. Click one or drag through a group. No direction or timing to match.</p>
         <div class="track-card">
           <div class="track-art" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
           <div><div class="track-title">NEON PULSE</div><div class="track-meta">SYNTHWAVE · 90 BPM · 75 SEC</div></div>
           <div class="best-line">PERSONAL BEST<strong id="best-score">—</strong></div>
         </div>
         <button class="primary-btn" id="start-btn">ENTER THE ARENA&nbsp; ↗</button>
-        <p class="tip">ARROWS = CUT DIRECTION · COLOR IS JUST STYLE<br>Hold and drag the mouse to swing.</p>
+        <p class="tip">HOVER, CLICK, OR DRAG TO CLEAR BLOCKS<br>Mouse is the only control.</p>
       </div>
     </section>
     <section class="overlay hidden" id="pause-overlay">
@@ -202,14 +201,12 @@
       const DURATION = 75;
       const BPM = 90;
       const BEAT = 60 / BPM;
-      const APPROACH = 2.05;
-      const HIT_WINDOW = 0.205;
+      const BLOCK_TRAVEL = 5.5;
+      const BLOCK_INTERVAL = .9;
       const NOTE_COLORS = ["#ff477e", "#39e6ff"];
-      const DIRECTIONS = ["left", "up", "right", "down"];
-      const KEYMAP = { ArrowLeft: "left", ArrowUp: "up", ArrowRight: "right", ArrowDown: "down" };
       const state = {
         mode: "ready", startAt: 0, pausedAt: 0, elapsed: 0, score: 0, combo: 0, bestCombo: 0,
-        hits: 0, misses: 0, mistakes: 0, chart: [], trails: [], particles: [], beat: -1,
+        hits: 0, misses: 0, chart: [], trails: [], particles: [], beat: -1,
         muted: false, audio: null, master: null, shake: 0, judgeUntil: 0, lastNow: 0, pointer: null,
         stars: [], saberGlow: 0, runId: 0
       };
@@ -232,15 +229,9 @@
         let seed = (runId * 92821 + 0x6d2b79f5) >>> 0;
         const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
         const notes = [];
-        const count = Math.floor(DURATION / BEAT) - 1;
-        // Leave a few beats before the first target so players can see the flow coming.
-        for (let beat = 5; beat < count; beat++) {
+        for (let spawnAt = .8; spawnAt < DURATION; spawnAt += BLOCK_INTERVAL) {
           const color = NOTE_COLORS[Math.floor(random() * NOTE_COLORS.length)];
-          notes.push({ id: notes.length, at: beat * BEAT, color, dir: DIRECTIONS[Math.floor(random() * 4)], lane: Math.floor(random() * 3) - 1, hit: false, missed: false });
-          if (beat % 12 === 7 && random() > .36) {
-            const otherColor = color === NOTE_COLORS[0] ? NOTE_COLORS[1] : NOTE_COLORS[0];
-            notes.push({ id: notes.length, at: beat * BEAT, color: otherColor, dir: DIRECTIONS[Math.floor(random() * 4)], lane: Math.floor(random() * 3) - 1, hit: false, missed: false });
-          }
+          notes.push({ id: notes.length, spawnAt, color, lane: Math.floor(random() * 3) - 1, hit: false, missed: false });
         }
         return notes;
       }
@@ -252,7 +243,7 @@
         $("best-score").textContent = best ? fmtScore(best) : "—";
       }
       function accuracy() {
-        const total = state.hits + state.misses + state.mistakes;
+        const total = state.hits + state.misses;
         return total ? Math.round((state.hits / total) * 100) : 100;
       }
       function updateHud() {
@@ -264,7 +255,7 @@
         $("progress-fill").style.width = `${p * 100}%`;
         const remain = Math.max(0, DURATION - state.elapsed);
         $("time-left").textContent = `${String(Math.floor(remain / 60)).padStart(2,"0")}:${String(Math.floor(remain % 60)).padStart(2,"0")}`;
-        $("run-state").textContent = state.mode === "running" ? "LIVE · STAY ON THE BEAT" : state.mode === "paused" ? "RUN PAUSED" : state.mode === "complete" ? "TRACK COMPLETE" : "READY WHEN YOU ARE";
+        $("run-state").textContent = state.mode === "running" ? "LIVE · CLEAR THE BLOCKS" : state.mode === "paused" ? "RUN PAUSED" : state.mode === "complete" ? "TRACK COMPLETE" : "READY WHEN YOU ARE";
         $("combo-wrap").classList.toggle("show", state.mode === "running" && state.combo >= 4);
       }
 
@@ -301,12 +292,10 @@
         else tone(index % 2 ? 760 : 540, .045, "sine", .027, 340);
         if (index % 8 === 4) tone(170, .16, "triangle", .09, 115);
       }
-      function hitSound(perfect) {
-        tone(perfect ? 720 : 560, perfect ? .22 : .14, "triangle", perfect ? .2 : .12, perfect ? 1200 : 420);
-        if (perfect) tone(1040, .12, "sine", .08, 1560);
+      function popSound() {
+        tone(660, .16, "triangle", .16, 1040);
+        tone(980, .1, "sine", .055, 1480);
       }
-      function missSound() { tone(105, .17, "sawtooth", .08, 48); }
-
       function startRun() {
         ensureAudio();
         state.runId++;
@@ -314,8 +303,9 @@
         state.mode = "running";
         state.startAt = performance.now() / 1000;
         state.elapsed = 0; state.score = 0; state.combo = 0; state.bestCombo = 0;
-        state.hits = 0; state.misses = 0; state.mistakes = 0; state.beat = -1;
+        state.hits = 0; state.misses = 0; state.beat = -1;
         state.trails = []; state.particles = []; state.shake = 0; state.saberGlow = 0;
+        state.pointer = null;
         $("start-overlay").classList.add("hidden");
         $("pause-overlay").classList.add("hidden");
         $("result-overlay").classList.add("hidden");
@@ -373,8 +363,8 @@
         }
       }
       function projectNote(note, now) {
-        const remain = note.at - now;
-        const depth = Math.max(0, Math.min(1.1, 1 - remain / APPROACH));
+        const age = now - note.spawnAt;
+        const depth = Math.max(0, Math.min(1.1, age / BLOCK_TRAVEL));
         const w = window.innerWidth;
         const h = window.innerHeight;
         const horizon = h * .29;
@@ -382,50 +372,46 @@
         const perspective = .22 + depth * .84;
         const x = w / 2 + note.lane * Math.min(w * .15, 152) * perspective;
         const y = horizon + travel * depth;
-        const size = (24 + Math.min(w, h) * .024) * perspective;
-        return { x, y, size, depth };
+        const size = (42 + Math.min(w, h) * .035) * perspective;
+        return { x, y, size, depth, age };
       }
-      function slash(dir, swipe = null) {
+      function popBlock(note) {
         if (state.mode !== "running") return;
         const now = state.elapsed;
-        const candidates = state.chart.filter(n => !n.hit && !n.missed && n.dir === dir && Math.abs(n.at - now) <= HIT_WINDOW)
-          .sort((a, b) => Math.abs(a.at - now) - Math.abs(b.at - now));
-        if (candidates.length) {
-          const note = candidates[0];
-          note.hit = true;
-          const delta = Math.abs(note.at - now);
-          const perfect = delta <= .075;
-          state.hits++;
-          state.combo++;
-          state.bestCombo = Math.max(state.bestCombo, state.combo);
-          state.score += Math.round((perfect ? 115 : 70 + Math.max(0, 1 - delta / HIT_WINDOW) * 30) * (1 + Math.min(state.combo, 40) * .025));
-          state.saberGlow = .22;
-          state.shake = Math.max(state.shake, perfect ? 3.2 : 1.8);
-          const pos = projectNote(note, now);
-          burst(pos.x, pos.y, note.color, perfect ? 19 : 12);
-          hitSound(perfect);
-          showJudge(perfect ? "PERFECT" : "GOOD");
-        } else {
-          state.mistakes++;
-          state.combo = 0;
-          state.shake = 2.2;
-          missSound();
-          showJudge("OFF BEAT", true);
+        if (note.hit || note.missed) return;
+        note.hit = true;
+        state.hits++;
+        state.combo++;
+        state.bestCombo = Math.max(state.bestCombo, state.combo);
+        state.score += 100 + Math.min(state.combo, 40) * 5;
+        state.saberGlow = .22;
+        state.shake = Math.max(state.shake, 1.2);
+        const pos = projectNote(note, now);
+        burst(pos.x, pos.y, note.color, 14);
+        popSound();
+        showJudge("POPPED");
+        updateHud();
+      }
+      function distanceToSegment(px, py, x1, y1, x2, y2) {
+        const dx = x2 - x1, dy = y2 - y1;
+        const lengthSquared = dx * dx + dy * dy;
+        const t = lengthSquared ? Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSquared)) : 0;
+        return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+      }
+      function popAlongSegment(x1, y1, x2, y2) {
+        if (state.mode !== "running") return;
+        for (const note of state.chart) {
+          const age = state.elapsed - note.spawnAt;
+          if (note.hit || note.missed || age < 0 || age > BLOCK_TRAVEL) continue;
+          const pos = projectNote(note, state.elapsed);
+          if (distanceToSegment(pos.x, pos.y, x1, y1, x2, y2) <= pos.size * .58 + 10) popBlock(note);
         }
-        const w = window.innerWidth, h = window.innerHeight;
-        const unitX = dir === "left" ? -1 : dir === "right" ? 1 : 0;
-        const unitY = dir === "up" ? -1 : dir === "down" ? 1 : 0;
-        const halfLength = Math.min(w, h) * .09;
-        const centerX = swipe ? (swipe.x1 + swipe.x2) / 2 : w / 2;
-        const centerY = swipe ? (swipe.y1 + swipe.y2) / 2 : h * .79;
+      }
+      function addMouseTrail(x1, y1, x2, y2) {
         state.trails.push({
           age: 0, life: .23, color: "#d9ff6a",
-          x1: swipe?.x1 ?? centerX - unitX * halfLength,
-          y1: swipe?.y1 ?? centerY - unitY * halfLength,
-          x2: swipe?.x2 ?? centerX + unitX * halfLength,
-          y2: swipe?.y2 ?? centerY + unitY * halfLength
+          x1, y1, x2, y2
         });
-        updateHud();
       }
 
       function tick(now) {
@@ -442,14 +428,14 @@
           }
           state.beat = beat;
         }
+        if (state.pointer?.active) popAlongSegment(state.pointer.x, state.pointer.y, state.pointer.x, state.pointer.y);
         for (const note of state.chart) {
-          if (!note.hit && !note.missed && state.elapsed > note.at + HIT_WINDOW) {
+          if (!note.hit && !note.missed && state.elapsed - note.spawnAt > BLOCK_TRAVEL) {
             note.missed = true;
             state.misses++;
             state.combo = 0;
             state.shake = Math.max(state.shake, 1.4);
-            showJudge("MISSED", true);
-            missSound();
+            showJudge("GOT AWAY", true);
           }
         }
         if (state.elapsed >= DURATION) { state.elapsed = DURATION; endRun(); }
@@ -510,59 +496,47 @@
         ctx.fillStyle = horizonGlow; ctx.fillRect(0, horizon - 1, w, 45);
       }
 
-      function drawArrowPrism(note, now) {
+      function drawBlock(note, now) {
         const p = projectNote(note, now);
         const size = p.size;
         const x = p.x, y = p.y;
         const col = note.color;
-        const angle = { up: 0, right: Math.PI / 2, down: Math.PI, left: -Math.PI / 2 }[note.dir];
-        const shape = [[-.2,.46],[.2,.46],[.2,-.02],[.45,-.02],[0,-.47],[-.45,-.02],[-.2,-.02]];
-        const points = shape.map(([px, py]) => ({
-          x: x + (px * Math.cos(angle) - py * Math.sin(angle)) * size,
-          y: y + (px * Math.sin(angle) + py * Math.cos(angle)) * size
-        }));
+        const half = size / 2;
         const depthX = size * .2, depthY = -size * .2;
-        const path = (offsetX = 0, offsetY = 0, scale = 1) => {
-          ctx.beginPath();
-          points.forEach((point, index) => {
-            const px = x + (point.x - x) * scale + offsetX;
-            const py = y + (point.y - y) * scale + offsetY;
-            if (index === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-          });
-          ctx.closePath();
-        };
+        const front = ctx.createLinearGradient(x - half, y - half, x + half, y + half);
+        front.addColorStop(0, "#ffffff"); front.addColorStop(.16, col); front.addColorStop(1, col);
         ctx.save();
         ctx.globalAlpha = note.hit || note.missed ? .12 : Math.min(1, .38 + p.depth * .9);
         ctx.shadowColor = col; ctx.shadowBlur = 10 + p.depth * 24;
         ctx.lineWidth = Math.max(1, size * .035);
-        path(depthX, depthY); ctx.fillStyle = "#091020"; ctx.strokeStyle = col; ctx.fill(); ctx.stroke();
-        for (let i = 0; i < points.length; i++) {
-          const a = points[i], b = points[(i + 1) % points.length];
-          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-          ctx.lineTo(b.x + depthX, b.y + depthY); ctx.lineTo(a.x + depthX, a.y + depthY); ctx.closePath();
-          ctx.fillStyle = i === 2 || i === 3 ? col : "#16243b"; ctx.fill(); ctx.strokeStyle = col; ctx.stroke();
-        }
-        const face = ctx.createLinearGradient(x - size * .5, y - size * .5, x + size * .5, y + size * .5);
-        face.addColorStop(0, "#ffffff"); face.addColorStop(.16, col); face.addColorStop(1, col);
-        path(); ctx.fillStyle = face; ctx.strokeStyle = "#eafcff"; ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x - half, y - half); ctx.lineTo(x - half + depthX, y - half + depthY);
+        ctx.lineTo(x + half + depthX, y - half + depthY); ctx.lineTo(x + half, y - half); ctx.closePath();
+        ctx.fillStyle = "#d7f7ff"; ctx.strokeStyle = col; ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + half, y - half); ctx.lineTo(x + half + depthX, y - half + depthY);
+        ctx.lineTo(x + half + depthX, y + half + depthY); ctx.lineTo(x + half, y + half); ctx.closePath();
+        ctx.fillStyle = "#112239"; ctx.strokeStyle = col; ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.rect(x - half, y - half, size, size);
+        ctx.fillStyle = front; ctx.strokeStyle = "#eafcff"; ctx.fill(); ctx.stroke();
+        ctx.shadowBlur = 0; ctx.globalAlpha *= .52; ctx.fillStyle = "#ffffff";
+        ctx.beginPath(); ctx.arc(x, y, Math.max(2, size * .09), 0, Math.PI * 2); ctx.fill();
         ctx.restore();
-        if (!note.hit && !note.missed && note.at - now < .48) {
-          const pulse = (Math.sin(now * 22) + 1) * .5;
-          ctx.save(); ctx.globalAlpha = .2 + pulse * .2; ctx.strokeStyle = col; ctx.lineWidth = 1;
-          path(0, 0, 1.18); ctx.stroke(); ctx.restore();
+        if (!note.hit && !note.missed && p.age > BLOCK_TRAVEL * .7) {
+          ctx.save(); ctx.globalAlpha = .16; ctx.strokeStyle = col; ctx.lineWidth = 1;
+          ctx.strokeRect(x - half * 1.2, y - half * 1.2, size * 1.2, size * 1.2); ctx.restore();
         }
       }
 
-      function drawSaber(now) {
+      function drawSaber() {
         const w = window.innerWidth, h = window.innerHeight;
         const pointer = state.pointer?.active ? state.pointer : null;
+        if (!pointer) { state.saberGlow = Math.max(0, state.saberGlow - .016); return; }
         const x = pointer ? pointer.x : w / 2;
         const y = pointer ? pointer.y : h * .8;
         const angle = pointer?.angle ?? -.4;
         const glow = state.saberGlow;
-        const length = Math.min(w, h) * .14;
+        const length = Math.min(w, h) * .1;
         ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
-        ctx.globalAlpha = pointer ? .9 : .3 + glow * 2.5;
+        ctx.globalAlpha = .9;
         ctx.shadowColor = "#d9ff6a"; ctx.shadowBlur = 16 + glow * 68;
         ctx.strokeStyle = "#efffb4"; ctx.lineWidth = 4 + glow * 8; ctx.lineCap = "round";
         ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -length); ctx.stroke();
@@ -602,59 +576,44 @@
           ctx.translate(ox, oy);
         }
         if (state.mode === "running" || state.mode === "paused") {
-          for (const note of state.chart) if (note.at - state.elapsed < APPROACH + .05 && note.at - state.elapsed > -.36) drawArrowPrism(note, state.elapsed);
+          for (const note of state.chart) {
+            const age = state.elapsed - note.spawnAt;
+            if (age >= 0 && age <= BLOCK_TRAVEL) drawBlock(note, state.elapsed);
+          }
         } else {
-          const idle = [{ at: 1.8, color: NOTE_COLORS[0], dir: "up", lane: -1 }, { at: 1.8, color: NOTE_COLORS[1], dir: "down", lane: 1 }, { at: .8, color: NOTE_COLORS[0], dir: "right", lane: 0 }];
-          idle.forEach(n => drawArrowPrism(n, -0.2 + (Math.sin(now * .6) + 1) * .14));
+          const idle = [{ spawnAt: -3.8, color: NOTE_COLORS[0], lane: -1 }, { spawnAt: -4.8, color: NOTE_COLORS[1], lane: 1 }, { spawnAt: -2.8, color: NOTE_COLORS[0], lane: 0 }];
+          idle.forEach(n => drawBlock(n, 0));
         }
-        drawSaber(now);
+        drawSaber();
         drawTrails(dt);
         if (state.shake > .1) ctx.restore();
         requestAnimationFrame(frame);
       }
 
-      function directionFrom(dx, dy) {
-        if (Math.abs(dx) > Math.abs(dy)) return dx < 0 ? "left" : "right";
-        return dy < 0 ? "up" : "down";
-      }
       canvas.addEventListener("pointermove", (event) => {
         if (state.mode !== "running") return;
-        if (state.pointer?.down && state.pointer.id === event.pointerId) {
-          const dx = event.clientX - state.pointer.x;
-          const dy = event.clientY - state.pointer.y;
-          state.pointer.angle = Math.atan2(dx, -dy);
-          state.pointer.x = event.clientX;
-          state.pointer.y = event.clientY;
-        } else if (event.pointerType === "mouse") {
-          state.pointer = { x: event.clientX, y: event.clientY, angle: -.4, id: event.pointerId, down: false, active: true, pointerType: "mouse" };
-        }
+        if (event.pointerType !== "mouse" && !state.pointer?.down) return;
+        const from = state.pointer?.active ? state.pointer : { x: event.clientX, y: event.clientY, angle: -.4 };
+        const dx = event.clientX - from.x, dy = event.clientY - from.y;
+        state.pointer = { ...from, x: event.clientX, y: event.clientY, angle: Math.hypot(dx, dy) > 2 ? Math.atan2(dx, -dy) : from.angle, id: event.pointerId, active: true, pointerType: event.pointerType };
+        if (Math.hypot(dx, dy) > 7) addMouseTrail(from.x, from.y, event.clientX, event.clientY);
+        popAlongSegment(from.x, from.y, event.clientX, event.clientY);
       });
       canvas.addEventListener("pointerdown", (event) => {
         if (state.mode !== "running") return;
-        state.pointer = { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, angle: -.4, id: event.pointerId, down: true, active: true, pointerType: event.pointerType };
+        state.pointer = { x: event.clientX, y: event.clientY, angle: state.pointer?.angle ?? -.4, id: event.pointerId, active: true, down: true, pointerType: event.pointerType };
         canvas.setPointerCapture?.(event.pointerId);
+        popAlongSegment(event.clientX, event.clientY, event.clientX, event.clientY);
       });
       canvas.addEventListener("pointerup", (event) => {
         if (!state.pointer?.down || state.pointer.id !== event.pointerId) return;
-        const swipe = { x1: state.pointer.startX, y1: state.pointer.startY, x2: event.clientX, y2: event.clientY };
-        const dx = swipe.x2 - swipe.x1, dy = swipe.y2 - swipe.y1;
-        if (Math.hypot(dx, dy) > 22) slash(directionFrom(dx, dy), swipe);
+        popAlongSegment(state.pointer.x, state.pointer.y, event.clientX, event.clientY);
         state.pointer = event.pointerType === "mouse"
-          ? { x: event.clientX, y: event.clientY, angle: state.pointer.angle, id: event.pointerId, down: false, active: true, pointerType: "mouse" }
+          ? { ...state.pointer, x: event.clientX, y: event.clientY, down: false }
           : null;
       });
       canvas.addEventListener("pointercancel", (event) => {
-        if (state.pointer?.id === event.pointerId) state.pointer = null;
-      });
-
-      window.addEventListener("keydown", (event) => {
-        const mapping = KEYMAP[event.code];
-        if (mapping) { event.preventDefault(); if (!event.repeat) slash(mapping); return; }
-        if ((event.code === "Escape" || event.code === "KeyP") && !event.repeat) {
-          event.preventDefault(); if (state.mode === "running") pauseRun(); else if (state.mode === "paused") resumeRun();
-        }
-        if (event.code === "KeyM" && !event.repeat) toggleMute();
-        if (event.code === "Enter" && state.mode === "ready") startRun();
+        if (state.pointer?.id === event.pointerId && event.pointerType !== "mouse") state.pointer = null;
       });
 
       function toggleMute() {
