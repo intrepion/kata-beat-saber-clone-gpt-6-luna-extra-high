@@ -1,6 +1,6 @@
 # NEON CUT
 
-A self-contained, browser-playable mouse game. Move over a block, click it, or drag through a group to pop it. There is no direction, color, or timing rule.
+A self-contained, browser-playable mouse rhythm game. Follow the original synthesized synthwave loop and hover, click, or drag over a block as it reaches the glowing beat ring. Blocks only pop inside a small timing window around the beat; they cannot be cleared early.
 
 ## Play
 
@@ -14,8 +14,8 @@ Then visit [http://localhost:8000](http://localhost:8000). The soundtrack is syn
 
 ## Controls
 
-- **Mouse:** move over blocks to pop them, click a block, or drag through several
-- **Touch:** tap or swipe through blocks
+- **Mouse:** hover, click, or drag through blocks as they reach the beat ring
+- **Touch:** tap or swipe through blocks as they reach the beat ring
 - **Pause and mute:** use the buttons in the top right
 
-Your score, streak, and best run are saved in this browser. The music is background atmosphere; popping blocks does not depend on its beat.
+The music and block arrivals share a 90 BPM clock. A bright green outline marks a block's hit window. Your score, streak, and best run are saved in this browser.

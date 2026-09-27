@@ -152,23 +152,23 @@
         <div class="progress-track"><div class="progress-fill" id="progress-fill"></div><div class="progress-dot"></div></div>
         <div class="control-strip">
           <svg class="mouse-icon" viewBox="0 0 20 26" aria-hidden="true"><rect x="3" y="1" width="14" height="24" rx="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span class="control-hint">MOVE MOUSE OVER BLOCKS TO CLEAR</span>
+          <span class="control-hint">POP BLOCKS WHEN THEY REACH THE BEAT RING</span>
         </div>
       </footer>
     </div>
 
     <section class="overlay" id="start-overlay">
       <div class="card">
-        <div class="eyebrow">MOUSE ONLY · NO RULES TO MEMORIZE</div>
+        <div class="eyebrow">MOUSE ONLY · FOLLOW THE BEAT</div>
         <h1>POP THE<br><em>BLOCKS.</em></h1>
-        <p class="lede">Move the mouse over blocks to pop them. Click one or drag through a group. No direction or timing to match.</p>
+        <p class="lede">Move the mouse onto a block to pop it—but only when it reaches the glowing beat ring with the music.</p>
         <div class="track-card">
           <div class="track-art" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
           <div><div class="track-title">NEON PULSE</div><div class="track-meta">SYNTHWAVE · 90 BPM · 75 SEC</div></div>
           <div class="best-line">PERSONAL BEST<strong id="best-score">—</strong></div>
         </div>
         <button class="primary-btn" id="start-btn">ENTER THE ARENA&nbsp; ↗</button>
-        <p class="tip">HOVER, CLICK, OR DRAG TO CLEAR BLOCKS<br>Mouse is the only control.</p>
+        <p class="tip">WAIT FOR THE BLOCK TO REACH THE BEAT RING<br>Hover, click, or drag with the mouse.</p>
       </div>
     </section>
     <section class="overlay hidden" id="pause-overlay">
@@ -201,13 +201,14 @@
       const DURATION = 75;
       const BPM = 90;
       const BEAT = 60 / BPM;
-      const BLOCK_TRAVEL = 5.5;
-      const BLOCK_INTERVAL = .9;
+      const BLOCK_TRAVEL = BEAT * 3;
+      const BLOCK_EVERY_BEATS = 2;
+      const HIT_WINDOW = .14;
       const NOTE_COLORS = ["#ff477e", "#39e6ff"];
       const state = {
         mode: "ready", startAt: 0, pausedAt: 0, elapsed: 0, score: 0, combo: 0, bestCombo: 0,
-        hits: 0, misses: 0, chart: [], trails: [], particles: [], beat: -1,
-        muted: false, audio: null, master: null, shake: 0, judgeUntil: 0, lastNow: 0, pointer: null,
+        hits: 0, misses: 0, chart: [], trails: [], particles: [], beat: -1, musicStep: -1,
+        muted: false, audio: null, master: null, noiseBuffer: null, audioStartAt: 0, shake: 0, judgeUntil: 0, lastTimingHintAt: -1, lastNow: 0, pointer: null,
         stars: [], saberGlow: 0, runId: 0
       };
       const palette = ["#39e6ff", "#63a6ff", "#b275ff", "#ff6c9c", "#ffbb62", "#b9ff78"];
@@ -229,9 +230,11 @@
         let seed = (runId * 92821 + 0x6d2b79f5) >>> 0;
         const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
         const notes = [];
-        for (let spawnAt = .8; spawnAt < DURATION; spawnAt += BLOCK_INTERVAL) {
+        const firstTargetBeat = Math.ceil(BLOCK_TRAVEL / BEAT) + 1;
+        for (let targetBeat = firstTargetBeat; targetBeat * BEAT < DURATION - HIT_WINDOW; targetBeat += BLOCK_EVERY_BEATS) {
           const color = NOTE_COLORS[Math.floor(random() * NOTE_COLORS.length)];
-          notes.push({ id: notes.length, spawnAt, color, lane: Math.floor(random() * 3) - 1, hit: false, missed: false });
+          const targetAt = targetBeat * BEAT;
+          notes.push({ id: notes.length, spawnAt: targetAt - BLOCK_TRAVEL, targetAt, color, lane: Math.floor(random() * 3) - 1, hit: false, missed: false });
         }
         return notes;
       }
@@ -255,24 +258,27 @@
         $("progress-fill").style.width = `${p * 100}%`;
         const remain = Math.max(0, DURATION - state.elapsed);
         $("time-left").textContent = `${String(Math.floor(remain / 60)).padStart(2,"0")}:${String(Math.floor(remain % 60)).padStart(2,"0")}`;
-        $("run-state").textContent = state.mode === "running" ? "LIVE · CLEAR THE BLOCKS" : state.mode === "paused" ? "RUN PAUSED" : state.mode === "complete" ? "TRACK COMPLETE" : "READY WHEN YOU ARE";
+        $("run-state").textContent = state.mode === "running" ? "LIVE · HIT ON THE BEAT" : state.mode === "paused" ? "RUN PAUSED" : state.mode === "complete" ? "TRACK COMPLETE" : "READY WHEN YOU ARE";
         $("combo-wrap").classList.toggle("show", state.mode === "running" && state.combo >= 4);
       }
 
-      function ensureAudio() {
+      async function ensureAudio() {
         if (!state.audio) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
           if (!AudioContext) return;
           state.audio = new AudioContext();
           state.master = state.audio.createGain();
-          state.master.gain.value = state.muted ? 0 : .23;
+          state.master.gain.value = state.muted ? 0 : .3;
           state.master.connect(state.audio.destination);
+          state.noiseBuffer = state.audio.createBuffer(1, state.audio.sampleRate, state.audio.sampleRate);
+          const noise = state.noiseBuffer.getChannelData(0);
+          for (let i = 0; i < noise.length; i++) noise[i] = Math.random() * 2 - 1;
         }
-        if (state.audio.state === "suspended") state.audio.resume();
+        if (state.audio.state === "suspended") await state.audio.resume();
       }
-      function tone(freq, duration, type, volume, endFreq, pan = 0) {
+      function tone(freq, duration, type, volume, endFreq, pan = 0, when = null) {
         if (!state.audio || state.muted) return;
-        const t = state.audio.currentTime;
+        const t = Number.isFinite(when) ? when : state.audio.currentTime;
         const osc = state.audio.createOscillator();
         const gain = state.audio.createGain();
         const panner = state.audio.createStereoPanner ? state.audio.createStereoPanner() : null;
@@ -286,24 +292,63 @@
         else { osc.connect(gain); gain.connect(state.master); }
         osc.start(t); osc.stop(t + duration + .03);
       }
-      function beatSound(index) {
+      function noiseBurst(duration, volume, cutoff, when = null) {
+        if (!state.audio || state.muted || !state.noiseBuffer) return;
+        const t = Number.isFinite(when) ? when : state.audio.currentTime;
+        const source = state.audio.createBufferSource();
+        const filter = state.audio.createBiquadFilter();
+        const gain = state.audio.createGain();
+        source.buffer = state.noiseBuffer;
+        filter.type = "highpass";
+        filter.frequency.setValueAtTime(cutoff, t);
+        gain.gain.setValueAtTime(volume, t);
+        gain.gain.exponentialRampToValueAtTime(.0001, t + duration);
+        source.connect(filter); filter.connect(gain); gain.connect(state.master);
+        source.start(t); source.stop(t + duration);
+      }
+      function musicStep(index) {
         if (state.muted || !state.audio) return;
-        if (index % 4 === 0) tone(125, .18, "sine", .25, 42);
-        else tone(index % 2 ? 760 : 540, .045, "sine", .027, 340);
-        if (index % 8 === 4) tone(170, .16, "triangle", .09, 115);
+        const when = state.audioStartAt + index * (BEAT / 2);
+        if (when < state.audio.currentTime + .005) return;
+        const roots = [110, 98, 82.4, 92.5];
+        const melody = [4, 4.8, 6, 8, 6, 4.8, 3, 4.8];
+        const stepInBar = index % 8;
+        const beatInBar = Math.floor(stepInBar / 2);
+        const root = roots[Math.floor(index / 8) % roots.length];
+
+        if (stepInBar === 0) {
+          tone(root * 2, BEAT * 3.7, "triangle", .045, root * 2 * .995, -.25, when);
+          tone(root * 2.4, BEAT * 3.7, "triangle", .035, root * 2.4 * .995, 0, when);
+          tone(root * 3, BEAT * 3.7, "triangle", .03, root * 3 * .995, .25, when);
+        }
+        if (index % 2 === 0) {
+          tone(root / 2, .3, "triangle", .09, root / 2 * .94, 0, when);
+          noiseBurst(.035, beatInBar % 2 === 0 ? .045 : .025, 6200, when);
+          if (beatInBar === 0) tone(140, .25, "sine", .28, 42, 0, when);
+          if (beatInBar === 2) {
+            noiseBurst(.14, .12, 1200, when);
+            tone(185, .13, "triangle", .08, 105, 0, when);
+          }
+        } else {
+          noiseBurst(.025, .024, 7200, when);
+        }
+        const note = root * melody[stepInBar];
+        tone(note, .15, "sine", .045, note * .995, (stepInBar - 3.5) / 7, when);
       }
       function popSound() {
         tone(660, .16, "triangle", .16, 1040);
         tone(980, .1, "sine", .055, 1480);
       }
-      function startRun() {
-        ensureAudio();
+      async function startRun() {
+        await ensureAudio();
         state.runId++;
         state.chart = makeChart(state.runId);
         state.mode = "running";
-        state.startAt = performance.now() / 1000;
+        const leadIn = .1;
+        state.startAt = performance.now() / 1000 + leadIn;
+        state.audioStartAt = state.audio ? state.audio.currentTime + leadIn : 0;
         state.elapsed = 0; state.score = 0; state.combo = 0; state.bestCombo = 0;
-        state.hits = 0; state.misses = 0; state.beat = -1;
+        state.hits = 0; state.misses = 0; state.beat = -1; state.musicStep = -1; state.lastTimingHintAt = -1;
         state.trails = []; state.particles = []; state.shake = 0; state.saberGlow = 0;
         state.pointer = null;
         $("start-overlay").classList.add("hidden");
@@ -324,6 +369,7 @@
         if (state.mode !== "paused") return;
         const now = performance.now() / 1000;
         state.startAt += now - state.pausedAt;
+        if (state.audio) state.audioStartAt += now - state.pausedAt;
         state.mode = "running";
         $("pause-overlay").classList.add("hidden");
         updateHud();
@@ -375,7 +421,7 @@
         const size = (42 + Math.min(w, h) * .035) * perspective;
         return { x, y, size, depth, age };
       }
-      function popBlock(note) {
+      function popBlock(note, timingError) {
         if (state.mode !== "running") return;
         const now = state.elapsed;
         if (note.hit || note.missed) return;
@@ -389,7 +435,7 @@
         const pos = projectNote(note, now);
         burst(pos.x, pos.y, note.color, 14);
         popSound();
-        showJudge("POPPED");
+        showJudge(timingError <= .055 ? "ON BEAT" : "GOOD");
         updateHud();
       }
       function distanceToSegment(px, py, x1, y1, x2, y2) {
@@ -398,13 +444,18 @@
         const t = lengthSquared ? Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSquared)) : 0;
         return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
       }
-      function popAlongSegment(x1, y1, x2, y2) {
+      function popAlongSegment(x1, y1, x2, y2, giveTimingHint = false) {
         if (state.mode !== "running") return;
         for (const note of state.chart) {
-          const age = state.elapsed - note.spawnAt;
-          if (note.hit || note.missed || age < 0 || age > BLOCK_TRAVEL) continue;
+          if (note.hit || note.missed) continue;
           const pos = projectNote(note, state.elapsed);
-          if (distanceToSegment(pos.x, pos.y, x1, y1, x2, y2) <= pos.size * .58 + 10) popBlock(note);
+          if (distanceToSegment(pos.x, pos.y, x1, y1, x2, y2) > pos.size * .58 + 10) continue;
+          const timingError = Math.abs(note.targetAt - state.elapsed);
+          if (timingError <= HIT_WINDOW) popBlock(note, timingError);
+          else if (giveTimingHint && note.targetAt > state.elapsed && note.targetAt - state.elapsed <= .55 && state.elapsed - state.lastTimingHintAt > .45) {
+            state.lastTimingHintAt = state.elapsed;
+            showJudge("WAIT FOR THE BEAT");
+          }
         }
       }
       function addMouseTrail(x1, y1, x2, y2) {
@@ -418,9 +469,13 @@
         if (state.mode !== "running") return;
         state.elapsed = Math.max(0, now - state.startAt);
         const beat = Math.floor(state.elapsed / BEAT);
+        const currentMusicStep = Math.floor((state.elapsed + .12) / (BEAT / 2));
+        if (currentMusicStep > state.musicStep) {
+          for (let i = state.musicStep + 1; i <= currentMusicStep; i++) musicStep(i);
+          state.musicStep = currentMusicStep;
+        }
         if (beat > state.beat) {
           for (let i = state.beat + 1; i <= beat; i++) {
-            beatSound(i);
             if (i % 4 === 0) {
               const pulse = $("beat-pulse");
               pulse.classList.remove("pop"); void pulse.offsetWidth; pulse.classList.add("pop");
@@ -430,7 +485,7 @@
         }
         if (state.pointer?.active) popAlongSegment(state.pointer.x, state.pointer.y, state.pointer.x, state.pointer.y);
         for (const note of state.chart) {
-          if (!note.hit && !note.missed && state.elapsed - note.spawnAt > BLOCK_TRAVEL) {
+          if (!note.hit && !note.missed && state.elapsed > note.targetAt + HIT_WINDOW) {
             note.missed = true;
             state.misses++;
             state.combo = 0;
@@ -503,11 +558,13 @@
         const col = note.color;
         const half = size / 2;
         const depthX = size * .2, depthY = -size * .2;
+        const timingError = Math.abs(note.targetAt - now);
+        const onBeat = timingError <= HIT_WINDOW;
         const front = ctx.createLinearGradient(x - half, y - half, x + half, y + half);
         front.addColorStop(0, "#ffffff"); front.addColorStop(.16, col); front.addColorStop(1, col);
         ctx.save();
         ctx.globalAlpha = note.hit || note.missed ? .12 : Math.min(1, .38 + p.depth * .9);
-        ctx.shadowColor = col; ctx.shadowBlur = 10 + p.depth * 24;
+        ctx.shadowColor = onBeat ? "#d9ff6a" : col; ctx.shadowBlur = 10 + p.depth * 24 + (onBeat ? 28 : 0);
         ctx.lineWidth = Math.max(1, size * .035);
         ctx.beginPath(); ctx.moveTo(x - half, y - half); ctx.lineTo(x - half + depthX, y - half + depthY);
         ctx.lineTo(x + half + depthX, y - half + depthY); ctx.lineTo(x + half, y - half); ctx.closePath();
@@ -520,10 +577,30 @@
         ctx.shadowBlur = 0; ctx.globalAlpha *= .52; ctx.fillStyle = "#ffffff";
         ctx.beginPath(); ctx.arc(x, y, Math.max(2, size * .09), 0, Math.PI * 2); ctx.fill();
         ctx.restore();
-        if (!note.hit && !note.missed && p.age > BLOCK_TRAVEL * .7) {
-          ctx.save(); ctx.globalAlpha = .16; ctx.strokeStyle = col; ctx.lineWidth = 1;
-          ctx.strokeRect(x - half * 1.2, y - half * 1.2, size * 1.2, size * 1.2); ctx.restore();
+        if (!note.hit && !note.missed && note.targetAt - now < .55) {
+          ctx.save(); ctx.globalAlpha = onBeat ? .92 : .3; ctx.strokeStyle = onBeat ? "#efffb4" : col; ctx.lineWidth = onBeat ? 2.5 : 1;
+          ctx.strokeRect(x - half * 1.3, y - half * 1.3, size * 1.3, size * 1.3); ctx.restore();
         }
+      }
+
+      function drawStrikeZone() {
+        const w = window.innerWidth, h = window.innerHeight;
+        const phase = (state.elapsed % BEAT) / BEAT;
+        const pulse = Math.pow(1 - phase, 4);
+        const marker = projectNote({ spawnAt: state.elapsed - BLOCK_TRAVEL, lane: 0 }, state.elapsed);
+        const half = marker.size * .56;
+        const spacing = Math.min(w * .15, 152) * 1.06;
+        ctx.save();
+        ctx.strokeStyle = "#d9ff6a";
+        ctx.shadowColor = "#d9ff6a";
+        ctx.shadowBlur = 8 + pulse * 22;
+        ctx.lineWidth = 1.2 + pulse * 1.8;
+        ctx.globalAlpha = .2 + pulse * .48;
+        for (let lane = -1; lane <= 1; lane++) {
+          const x = w / 2 + lane * spacing;
+          ctx.strokeRect(x - half, marker.y - half, half * 2, half * 2);
+        }
+        ctx.restore();
       }
 
       function drawSaber() {
@@ -569,6 +646,7 @@
         state.lastNow = now;
         tick(now);
         drawTunnel(now);
+        drawStrikeZone();
         if (state.shake > .1) {
           ctx.save();
           const ox = (Math.random() - .5) * state.shake, oy = (Math.random() - .5) * state.shake;
@@ -578,7 +656,7 @@
         if (state.mode === "running" || state.mode === "paused") {
           for (const note of state.chart) {
             const age = state.elapsed - note.spawnAt;
-            if (age >= 0 && age <= BLOCK_TRAVEL) drawBlock(note, state.elapsed);
+            if (age >= 0 && age <= BLOCK_TRAVEL + HIT_WINDOW) drawBlock(note, state.elapsed);
           }
         } else {
           const idle = [{ spawnAt: -3.8, color: NOTE_COLORS[0], lane: -1 }, { spawnAt: -4.8, color: NOTE_COLORS[1], lane: 1 }, { spawnAt: -2.8, color: NOTE_COLORS[0], lane: 0 }];
@@ -597,17 +675,17 @@
         const dx = event.clientX - from.x, dy = event.clientY - from.y;
         state.pointer = { ...from, x: event.clientX, y: event.clientY, angle: Math.hypot(dx, dy) > 2 ? Math.atan2(dx, -dy) : from.angle, id: event.pointerId, active: true, pointerType: event.pointerType };
         if (Math.hypot(dx, dy) > 7) addMouseTrail(from.x, from.y, event.clientX, event.clientY);
-        popAlongSegment(from.x, from.y, event.clientX, event.clientY);
+        popAlongSegment(from.x, from.y, event.clientX, event.clientY, true);
       });
       canvas.addEventListener("pointerdown", (event) => {
         if (state.mode !== "running") return;
         state.pointer = { x: event.clientX, y: event.clientY, angle: state.pointer?.angle ?? -.4, id: event.pointerId, active: true, down: true, pointerType: event.pointerType };
         canvas.setPointerCapture?.(event.pointerId);
-        popAlongSegment(event.clientX, event.clientY, event.clientX, event.clientY);
+        popAlongSegment(event.clientX, event.clientY, event.clientX, event.clientY, true);
       });
       canvas.addEventListener("pointerup", (event) => {
         if (!state.pointer?.down || state.pointer.id !== event.pointerId) return;
-        popAlongSegment(state.pointer.x, state.pointer.y, event.clientX, event.clientY);
+        popAlongSegment(state.pointer.x, state.pointer.y, event.clientX, event.clientY, true);
         state.pointer = event.pointerType === "mouse"
           ? { ...state.pointer, x: event.clientX, y: event.clientY, down: false }
           : null;
@@ -618,7 +696,7 @@
 
       function toggleMute() {
         state.muted = !state.muted;
-        if (state.master) state.master.gain.setTargetAtTime(state.muted ? 0 : .23, state.audio.currentTime, .025);
+        if (state.master) state.master.gain.setTargetAtTime(state.muted ? 0 : .3, state.audio.currentTime, .025);
         $("volume-icon").innerHTML = state.muted
           ? '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 5 6m0-6-5 6"/>'
           : '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>';
