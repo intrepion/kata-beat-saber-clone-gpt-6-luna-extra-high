@@ -1,5 +1,9 @@
 # NEON CUT
 
+## Play online
+
+[Play NEON CUT](https://intrepion.github.io/kata-beat-saber-clone-gpt-6-luna-extra-high/) — free, playable in your browser.
+
 A self-contained, browser-playable mouse rhythm game. Follow the original synthesized synthwave loop and hover, click, or drag over a block as it reaches the glowing beat ring. Blocks only pop inside a small timing window around the beat; they cannot be cleared early.
 
 ## Play
