@@ -23,3 +23,7 @@ Then visit [http://localhost:8000](http://localhost:8000). The soundtrack is syn
 - **Pause and mute:** use the buttons in the top right
 
 The music and block arrivals share a 90 BPM clock. A bright green outline marks a block's hit window. Your score, streak, and best run are saved in this browser.
+
+## Arcade metadata
+
+See [docs/arcade-metadata.md](docs/arcade-metadata.md) for the game-owned manifest and screenshot provenance.
