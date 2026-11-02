@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "workflowCommit": "90740ee4e0252eca72db9b470916a17fa62b48e4",
+  "sourceCommit": "e3209939df2681dc1cb4a94f77149f6df06e4711",
+  "runId": "41446324809",
+  "url": "http://127.0.0.1:4291/",
+  "inputs": {
+    "index.html": "b08526f9e58280bbdbdf15a3fb03fac9cc0430e978386495e4c0d360b0e3d91d"
+  },
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "screenshots": [
+    "neon-cut-01.png",
+    "neon-cut-02.png"
+  ]
+}

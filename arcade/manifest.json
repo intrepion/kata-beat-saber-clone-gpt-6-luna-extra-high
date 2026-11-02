@@ -1,6 +1,43 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "gameId": "kata-beat-saber-clone-gpt-6-luna-extra-high",
   "playUrl": "https://intrepion.github.io/kata-beat-saber-clone-gpt-6-luna-extra-high/",
-  "screenshots": []
+  "screenshots": [
+    {
+      "path": "arcade/screenshots/ci-20261102-01.jpg",
+      "sha256": "26e0d4c3306ce41d9d76293ec911654ef4984ff49ca0508f1c58f59c109b0e85",
+      "alt": "NEON CUT gameplay, view 1",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-01.png",
+        "sourceSha256": "c0002bd769b2dec035a6dbad4eaabae63f03acb8727aefb38aca3a8a30f6bdeb",
+        "captureCommit": "e3209939df2681dc1cb4a94f77149f6df06e4711",
+        "workflowRunId": "41446324809",
+        "inputHashes": {
+          "index.html": "b08526f9e58280bbdbdf15a3fb03fac9cc0430e978386495e4c0d360b0e3d91d"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "b56a461a6a37a123436a60709b672c11f6f2a79af3e70f89f96c618936ec5fa9"
+      }
+    },
+    {
+      "path": "arcade/screenshots/ci-20261102-02.jpg",
+      "sha256": "1027f29980f6c182c104824397e34b4b4337c526c6cf262e915d973064f8b9be",
+      "alt": "NEON CUT gameplay, view 2",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-02.png",
+        "sourceSha256": "1036784a6e81afc10b9a2673c22116904b1e3592d41fa22ef3553318ee967351",
+        "captureCommit": "e3209939df2681dc1cb4a94f77149f6df06e4711",
+        "workflowRunId": "41446324809",
+        "inputHashes": {
+          "index.html": "b08526f9e58280bbdbdf15a3fb03fac9cc0430e978386495e4c0d360b0e3d91d"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "b56a461a6a37a123436a60709b672c11f6f2a79af3e70f89f96c618936ec5fa9"
+      }
+    }
+  ]
 }
